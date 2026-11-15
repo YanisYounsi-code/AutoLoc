@@ -1,0 +1,59 @@
+PS C:\Users\MON PC\Pictures\autoloc-api\autoloc-api> docker compose --profile perf run --rm -e CIBLE=naif k6
+         /\      Grafana   /‾‾/                                                                                                                                                                                                     
+    /\  /  \     |\  __   /  /                                                                                                                                                                                                      
+   /  \/    \    | |/ /  /   ‾‾\                                                                                                                                                                                                    
+  /          \   |   (  |  (‾)  |                                                                                                                                                                                                   
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: /scripts/test-charge.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 50 max VUs, 1m30s max duration (incl. graceful stop):
+              * default: Up to 50 looping VUs for 1m0s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+
+
+
+  █ THRESHOLDS 
+
+    http_req_duration
+    ✗ 'p(95)<500' p(95)=13.33s
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 234     3.510337/s
+    checks_succeeded...: 100.00% 234 out of 234
+    checks_failed......: 0.00%   0 out of 234
+
+    ✓ vehicules 200
+    ✓ locations 200
+
+    HTTP
+    http_req_duration..............: avg=7.73s  min=348.52ms med=7.56s  max=19.8s  p(90)=12.57s p(95)=13.33s
+      { expected_response:true }...: avg=7.73s  min=348.52ms med=7.56s  max=19.8s  p(90)=12.57s p(95)=13.33s
+    http_req_failed................: 0.00% 0 out of 234
+    http_reqs......................: 234   3.510337/s
+
+    EXECUTION
+    iteration_duration.............: avg=16.48s min=6.14s    med=16.24s max=27.78s p(90)=21.59s p(95)=22.17s
+    iterations.....................: 117   1.755169/s
+    vus............................: 7     min=2        max=50
+    vus_max........................: 50    min=50       max=50
+
+    NETWORK
+    data_received..................: 52 MB 774 kB/s
+    data_sent......................: 37 kB 560 B/s
+
+
+
+
+running (1m06.7s), 00/50 VUs, 117 complete and 0 interrupted iterations
+default ✓ [======================================] 00/50 VUs  1m0s
+ERRO[0067] thresholds on metrics 'http_req_duration' have been crossed 
+
+

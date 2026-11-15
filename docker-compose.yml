@@ -1,0 +1,73 @@
+# Lancement complet : docker compose up --build
+#   Application      : http://localhost:8080        (connexion, vehicules, /admin)
+#   Swagger          : http://localhost:8080/swagger-ui.html
+#   phpMyAdmin       : http://localhost:8081
+# Test de charge     : docker compose --profile perf run --rm k6
+
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: autoloc-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-autoloc}
+      MYSQL_DATABASE: autoloc_db
+    ports:
+      # 3307 cote PC pour ne pas entrer en conflit avec le MySQL de XAMPP (3306)
+      - "3307:3306"
+    volumes:
+      # Volume nomme : les donnees survivent a l'arret et a la suppression du conteneur
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build: .
+    container_name: autoloc-api
+    environment:
+      # Dans le reseau Docker, MySQL s'appelle "mysql" (nom du service), pas "localhost"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/autoloc_db?createDatabaseIfNotExist=true
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-autoloc}
+      # Mots de passe des 2 comptes (fichier .env) ; a defaut, valeurs de salle de TP
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      USER_PASSWORD: ${USER_PASSWORD:-user123}
+      # Pas de SQL dans les logs du conteneur : ecrire chaque requete fausserait le test de charge
+      LOGGING_LEVEL_ORG_HIBERNATE_SQL: INFO
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy   # attend que MySQL reponde avant de demarrer l'API
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: autoloc-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+
+  # Test de charge : ne demarre pas avec "up", seulement avec --profile perf
+  k6:
+    image: grafana/k6
+    profiles: ["perf"]
+    environment:
+      BASE_URL: http://api:8080
+      CIBLE: ${CIBLE:-optimise}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      USER_PASSWORD: ${USER_PASSWORD:-user123}
+    volumes:
+      - ./perf:/scripts:ro
+    command: run /scripts/test-charge.js
+    depends_on:
+      - api
+
+volumes:
+  mysql-data:
