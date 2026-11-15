@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: entete('Connexion')}"></head>
+<body class="page-connexion">
+<main class="carte-connexion">
+    <div class="marque grande">
+        <img th:src="@{/favicon.svg}" alt="" width="36" height="36"> AutoLoc
+    </div>
+    <p class="sous-titre">Location de véhicules</p>
+
+    <p class="alerte erreur" th:if="${param.erreur}">Identifiant ou mot de passe incorrect.</p>
+    <p class="alerte succes" th:if="${param.deconnecte}">Vous êtes déconnecté.</p>
+
+    <!-- Formulaire traite par Spring Security (formLogin) : champs "username" et "password" -->
+    <form th:action="@{/connexion}" method="post" class="pile">
+        <label>Identifiant (e-mail)
+            <input type="email" name="username" required autofocus autocomplete="username">
+        </label>
+        <label>Mot de passe
+            <input type="password" name="password" required autocomplete="current-password">
+        </label>
+        <button type="submit" class="bouton plein">Se connecter</button>
+    </form>
+
+    <div class="comptes-demo">
+        <strong>Comptes de démonstration</strong>
+        <span><code>user@autoloc.fr</code> pour louer</span>
+        <span><code>admin@autoloc.fr</code> pour administrer</span>
+        <small>Mots de passe : voir le README.</small>
+    </div>
+</main>
+</body>
+</html>

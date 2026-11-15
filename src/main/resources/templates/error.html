@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: entete('Erreur')}"></head>
+<body class="page-connexion">
+<!-- Page affichee par Spring Boot pour toute erreur des pages web (403, 404, 500...) -->
+<main class="carte-connexion">
+    <p class="code-erreur" th:text="${status}">404</p>
+    <h1 th:switch="${status}">
+        <span th:case="403">Accès refusé</span>
+        <span th:case="404">Page introuvable</span>
+        <span th:case="*">Une erreur est survenue</span>
+    </h1>
+    <p class="sous-titre" th:if="${status == 403}">Votre compte n'a pas le rôle nécessaire pour cette page.</p>
+    <a class="bouton plein" th:href="@{/}">Retour à l'accueil</a>
+</main>
+</body>
+</html>

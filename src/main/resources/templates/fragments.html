@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- Fragment commun a toutes les pages : <head th:replace="~{fragments :: entete('Titre')}">.
+     Nom "entete" et pas "head" : un nom de balise HTML serait confondu avec la balise <head> elle-meme. -->
+<head th:fragment="entete(titre)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titre} + ' · AutoLoc'">AutoLoc</title>
+    <link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- Barre du haut : les liens dependent du role (sec:authorize, Thymeleaf + Spring Security) -->
+<header class="barre" th:fragment="barre(actif)">
+    <a class="marque" th:href="@{/}">
+        <img th:src="@{/favicon.svg}" alt="" width="26" height="26"> AutoLoc
+    </a>
+    <nav>
+        <a th:href="@{/vehicules}" th:classappend="${actif == 'vehicules'} ? 'actif'">Véhicules</a>
+        <a sec:authorize="hasRole('USER')" th:href="@{/mes-locations}"
+           th:classappend="${actif == 'locations'} ? 'actif'">Mes locations</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}"
+           th:classappend="${actif == 'admin'} ? 'actif'">Administration</a>
+    </nav>
+    <div class="compte">
+        <span class="role" sec:authorize="hasRole('ADMIN')">Admin</span>
+        <span class="role user" sec:authorize="hasRole('USER')">User</span>
+        <span class="email" sec:authentication="name">user@autoloc.fr</span>
+        <!-- La deconnexion est un POST : le jeton CSRF est ajoute automatiquement par th:action -->
+        <form th:action="@{/deconnexion}" method="post">
+            <button type="submit" class="bouton discret">Déconnexion</button>
+        </form>
+    </div>
+</header>
+
+<!-- Messages "flash" poses par le controleur avant une redirection -->
+<th:block th:fragment="messages">
+    <p class="alerte succes" th:if="${succes}" th:text="${succes}">Action réussie.</p>
+    <p class="alerte erreur" th:if="${erreur}" th:text="${erreur}">Une erreur est survenue.</p>
+</th:block>
+
+</body>
+</html>

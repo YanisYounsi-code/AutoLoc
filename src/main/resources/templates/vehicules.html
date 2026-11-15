@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: entete('Véhicules')}"></head>
+<body>
+<header th:replace="~{fragments :: barre('vehicules')}"></header>
+<main class="contenu">
+    <h1>Véhicules disponibles</h1>
+    <th:block th:replace="~{fragments :: messages}"></th:block>
+
+    <!-- Recherche : formulaire GET, les criteres partent dans l'URL (?debut=...&fin=...) -->
+    <form th:action="@{/vehicules}" method="get" class="filtres">
+        <label>Du <input type="date" name="debut" th:value="${debut}" required></label>
+        <label>Au <input type="date" name="fin" th:value="${fin}" required></label>
+        <label>Catégorie
+            <select name="categorie">
+                <option value="">Toutes</option>
+                <option th:each="c : ${categories}" th:value="${c}" th:text="${c.libelle()}"
+                        th:selected="${c == categorie}">Citadine</option>
+            </select>
+        </label>
+        <button type="submit" class="bouton">Rechercher</button>
+    </form>
+
+    <p class="resume">
+        <strong th:text="${vehicules.totalElements}">0</strong> véhicule(s) libre(s) du
+        <span th:text="${#temporals.format(debut, 'dd/MM/yyyy')}">01/01/2026</span> au
+        <span th:text="${#temporals.format(fin, 'dd/MM/yyyy')}">03/01/2026</span>
+        (<span th:text="${nbJours}">3</span> jour(s))
+    </p>
+
+    <p class="vide" th:if="${#lists.isEmpty(vehicules.content)}">Aucun véhicule libre sur cette période.</p>
+
+    <div class="grille">
+        <article class="vehicule" th:each="v : ${vehicules.content}">
+            <div class="vehicule-entete">
+                <h2 th:text="${v.marque() + ' ' + v.modele()}">Peugeot 208</h2>
+                <span class="badge" th:text="${v.categorieLibelle()}">Citadine</span>
+            </div>
+            <p class="detail" th:text="${'Agence de ' + v.agenceVille() + ' · ' + v.immatriculation()}">Agence de Paris</p>
+            <p class="equipements" th:text="${#strings.listJoin(v.equipements(), ' · ')}">GPS · Bluetooth</p>
+            <div class="vehicule-pied">
+                <div>
+                    <span class="prix" th:text="${#numbers.formatDecimal(v.montantPour(nbJours), 1, 'WHITESPACE', 2, 'COMMA')} + ' €'">120,00 €</span>
+                    <span class="detail" th:text="${#numbers.formatDecimal(v.tarifJournalier(), 1, 'WHITESPACE', 2, 'COMMA')} + ' € / jour'">40,00 € / jour</span>
+                </div>
+                <!-- Bouton "Louer" : seulement pour le compte USER -->
+                <form sec:authorize="hasRole('USER')" th:action="@{/louer}" method="post">
+                    <input type="hidden" name="vehiculeId" th:value="${v.id()}">
+                    <input type="hidden" name="dateDebut" th:value="${debut}">
+                    <input type="hidden" name="dateFin" th:value="${fin}">
+                    <button type="submit" class="bouton plein">Louer</button>
+                </form>
+            </div>
+        </article>
+    </div>
+
+    <nav class="pagination" th:if="${vehicules.totalPages > 1}">
+        <a th:if="${vehicules.hasPrevious()}"
+           th:href="@{/vehicules(debut=${debut}, fin=${fin}, categorie=${categorie}, page=${vehicules.number - 1})}">← Précédent</a>
+        <span th:text="'Page ' + ${vehicules.number + 1} + ' / ' + ${vehicules.totalPages}">Page 1 / 2</span>
+        <a th:if="${vehicules.hasNext()}"
+           th:href="@{/vehicules(debut=${debut}, fin=${fin}, categorie=${categorie}, page=${vehicules.number + 1})}">Suivant →</a>
+    </nav>
+</main>
+</body>
+</html>

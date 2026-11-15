@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: entete('Administration')}"></head>
+<body>
+<header th:replace="~{fragments :: barre('admin')}"></header>
+<main class="contenu">
+    <h1>Administration</h1>
+    <th:block th:replace="~{fragments :: messages}"></th:block>
+
+    <!-- Chiffres cles : calcules par la base (COUNT / GROUP BY) -->
+    <section class="chiffres">
+        <div class="chiffre"><strong th:text="${chiffres.locationsEnAttente()}">4</strong><span>Locations à confirmer</span></div>
+        <div class="chiffre"><strong th:text="${chiffres.vehiculesDisponibles()}">30</strong><span>Véhicules disponibles</span></div>
+        <div class="chiffre"><strong th:text="${chiffres.vehiculesLoues()}">15</strong><span>Véhicules loués</span></div>
+        <div class="chiffre"><strong th:text="${chiffres.vehiculesEnMaintenance()}">3</strong><span>En maintenance</span></div>
+    </section>
+
+    <!-- ===================== Locations ===================== -->
+    <section class="bloc">
+        <div class="bloc-entete">
+            <h2>Locations</h2>
+            <nav class="onglets">
+                <a th:href="@{/admin}" th:classappend="${statut == null} ? 'actif'">Toutes</a>
+                <a th:each="s : ${statuts}" th:href="@{/admin(statut=${s})}"
+                   th:classappend="${s == statut} ? 'actif'" th:text="${s.libelle()}">En attente</a>
+            </nav>
+        </div>
+
+        <p class="vide" th:if="${#lists.isEmpty(locations.content)}">Aucune location.</p>
+        <div class="tableau" th:unless="${#lists.isEmpty(locations.content)}">
+            <table>
+                <thead>
+                <tr><th>N°</th><th>Client</th><th>Véhicule</th><th>Période</th><th>Montant</th><th>Statut</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="l : ${locations.content}">
+                    <td class="muet" th:text="${l.id()}">1</td>
+                    <td>
+                        <strong th:text="${l.clientNom()}">Camille Martin</strong>
+                        <span class="detail" th:text="${l.clientEmail()}">user@autoloc.fr</span>
+                    </td>
+                    <td>
+                        <span th:text="${l.vehiculeLibelle()}">Peugeot 208</span>
+                        <span class="detail" th:text="${l.agenceVille() + ' · ' + l.immatriculation()}">Paris</span>
+                    </td>
+                    <td th:text="${#temporals.format(l.dateDebut(), 'dd/MM/yy')} + ' → ' + ${#temporals.format(l.dateFin(), 'dd/MM/yy')}">01/01 → 03/01</td>
+                    <td class="nombre" th:text="${#numbers.formatDecimal(l.montant(), 1, 'WHITESPACE', 2, 'COMMA')} + ' €'">120,00 €</td>
+                    <td><span class="pastille" th:classappend="${l.statutClasse()}" th:text="${l.statutLibelle()}">En attente</span></td>
+                    <td class="actions">
+                        <!-- Chaque action est un petit formulaire POST (jeton CSRF ajoute par th:action) -->
+                        <form th:if="${l.enAttente()}"
+                              th:action="@{/admin/locations/{id}/confirmation(id=${l.id()})}" method="post">
+                            <button type="submit" class="bouton plein petit">Confirmer</button>
+                        </form>
+                        <form th:if="${l.confirmee()}"
+                              th:action="@{/admin/locations/{id}/fin(id=${l.id()})}" method="post">
+                            <button type="submit" class="bouton petit">Terminer</button>
+                        </form>
+                        <form th:if="${l.enCours()}"
+                              th:action="@{/admin/locations/{id}/annulation(id=${l.id()})}" method="post">
+                            <button type="submit" class="bouton discret danger petit">Annuler</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav class="pagination" th:if="${locations.totalPages > 1}">
+            <a th:if="${locations.hasPrevious()}"
+               th:href="@{/admin(statut=${statut}, pageLocations=${locations.number - 1}, pageVehicules=${vehicules.number})}">← Précédent</a>
+            <span th:text="'Page ' + ${locations.number + 1} + ' / ' + ${locations.totalPages}">Page 1 / 9</span>
+            <a th:if="${locations.hasNext()}"
+               th:href="@{/admin(statut=${statut}, pageLocations=${locations.number + 1}, pageVehicules=${vehicules.number})}">Suivant →</a>
+        </nav>
+    </section>
+
+    <!-- ===================== Flotte ===================== -->
+    <section class="bloc">
+        <div class="bloc-entete"><h2>Flotte</h2></div>
+        <div class="tableau">
+            <table>
+                <thead>
+                <tr><th>Véhicule</th><th>Catégorie</th><th>Agence</th><th>Tarif / jour</th><th>Statut</th><th>Changer le statut</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="v : ${vehicules.content}">
+                    <td>
+                        <strong th:text="${v.marque() + ' ' + v.modele()}">Peugeot 208</strong>
+                        <span class="detail" th:text="${v.immatriculation()}">AB-123-CD</span>
+                    </td>
+                    <td th:text="${v.categorieLibelle()}">Citadine</td>
+                    <td th:text="${v.agenceVille()}">Paris</td>
+                    <td class="nombre" th:text="${#numbers.formatDecimal(v.tarifJournalier(), 1, 'WHITESPACE', 2, 'COMMA')} + ' €'">40,00 €</td>
+                    <td th:text="${v.statutLibelle()}">Disponible</td>
+                    <td class="actions">
+                        <form th:if="${v.disponible()}"
+                              th:action="@{/admin/vehicules/{id}/statut(id=${v.id()})}" method="post">
+                            <input type="hidden" name="statut" value="MAINTENANCE">
+                            <button type="submit" class="bouton discret petit">Mettre en maintenance</button>
+                        </form>
+                        <form th:if="${v.enMaintenance()}"
+                              th:action="@{/admin/vehicules/{id}/statut(id=${v.id()})}" method="post">
+                            <input type="hidden" name="statut" value="DISPONIBLE">
+                            <button type="submit" class="bouton discret petit">Remettre en service</button>
+                        </form>
+                        <span class="detail" th:if="${v.loue()}">En location</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav class="pagination" th:if="${vehicules.totalPages > 1}">
+            <a th:if="${vehicules.hasPrevious()}"
+               th:href="@{/admin(statut=${statut}, pageLocations=${locations.number}, pageVehicules=${vehicules.number - 1})}">← Précédent</a>
+            <span th:text="'Page ' + ${vehicules.number + 1} + ' / ' + ${vehicules.totalPages}">Page 1 / 5</span>
+            <a th:if="${vehicules.hasNext()}"
+               th:href="@{/admin(statut=${statut}, pageLocations=${locations.number}, pageVehicules=${vehicules.number + 1})}">Suivant →</a>
+        </nav>
+    </section>
+
+    <!-- ===================== Ajout d'un vehicule ===================== -->
+    <section class="bloc">
+        <div class="bloc-entete"><h2>Ajouter un véhicule</h2></div>
+        <!-- Les noms des champs correspondent au record VehiculeRequest (valide par @Valid) -->
+        <form th:action="@{/admin/vehicules}" method="post" class="formulaire">
+            <label>Immatriculation <input name="immatriculation" placeholder="AB-123-CD" required maxlength="20"></label>
+            <label>Marque <input name="marque" placeholder="Peugeot" required maxlength="50"></label>
+            <label>Modèle <input name="modele" placeholder="208" required maxlength="50"></label>
+            <label>Catégorie
+                <select name="categorie" required>
+                    <option th:each="c : ${categories}" th:value="${c}" th:text="${c.libelle()}">Citadine</option>
+                </select>
+            </label>
+            <label>Tarif / jour (€) <input name="tarifJournalier" type="number" min="1" step="0.01" placeholder="45" required></label>
+            <label>Agence
+                <select name="agenceId" required>
+                    <option th:each="a : ${agences}" th:value="${a.id()}" th:text="${a.ville() + ' – ' + a.nom()}">Paris</option>
+                </select>
+            </label>
+            <button type="submit" class="bouton plein">Ajouter</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: entete('Mes locations')}"></head>
+<body>
+<header th:replace="~{fragments :: barre('locations')}"></header>
+<main class="contenu">
+    <h1>Mes locations</h1>
+    <th:block th:replace="~{fragments :: messages}"></th:block>
+
+    <p class="vide" th:if="${#lists.isEmpty(locations)}">
+        Aucune location pour l'instant. <a th:href="@{/vehicules}">Voir les véhicules</a>
+    </p>
+
+    <div class="tableau" th:unless="${#lists.isEmpty(locations)}">
+        <table>
+            <thead>
+            <tr><th>Véhicule</th><th>Période</th><th>Montant</th><th>Statut</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="l : ${locations}">
+                <td>
+                    <strong th:text="${l.vehiculeLibelle()}">Peugeot 208</strong>
+                    <span class="detail" th:text="${l.agenceVille() + ' · ' + l.immatriculation()}">Paris</span>
+                </td>
+                <td>
+                    <span th:text="${#temporals.format(l.dateDebut(), 'dd/MM/yyyy')} + ' → ' + ${#temporals.format(l.dateFin(), 'dd/MM/yyyy')}">01/01 → 03/01</span>
+                    <span class="detail" th:text="${l.nbJours()} + ' jour(s)'">3 jours</span>
+                </td>
+                <td class="nombre" th:text="${#numbers.formatDecimal(l.montant(), 1, 'WHITESPACE', 2, 'COMMA')} + ' €'">120,00 €</td>
+                <td><span class="pastille" th:classappend="${l.statutClasse()}" th:text="${l.statutLibelle()}">En attente</span></td>
+                <td class="actions">
+                    <form th:if="${l.annulablePar(aujourdhui)}"
+                          th:action="@{/mes-locations/{id}/annulation(id=${l.id()})}" method="post">
+                        <button type="submit" class="bouton discret danger">Annuler</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

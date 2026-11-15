@@ -1,0 +1,168 @@
+/* AutoLoc : une seule feuille de style, aucune bibliotheque, aucun JavaScript. */
+:root {
+    --fond: #f5f6f8;
+    --surface: #ffffff;
+    --texte: #1b1f27;
+    --texte-doux: #5d6675;
+    --bordure: #e2e5ea;
+    --primaire: #2747c7;
+    --primaire-fonce: #1d379e;
+    --primaire-pale: #eaeefc;
+    --succes: #17784a;
+    --succes-pale: #e4f4ec;
+    --danger: #b42318;
+    --danger-pale: #fdecea;
+    --attente: #9a5b00;
+    --attente-pale: #fff3dc;
+    --rayon: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--fond);
+    color: var(--texte);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+a { color: var(--primaire); }
+h1 { font-size: 1.6rem; margin: 0 0 1rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.1rem; margin: 0; }
+code { background: var(--primaire-pale); padding: 0 .3em; border-radius: 4px; font-size: .9em; }
+
+/* ---------- Barre du haut ---------- */
+.barre {
+    display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+    padding: .7rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--bordure);
+}
+.marque {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-weight: 700; font-size: 1.1rem; color: var(--texte); text-decoration: none;
+}
+.marque.grande { font-size: 1.6rem; }
+.barre nav { display: flex; gap: .25rem; flex: 1; }
+.barre nav a {
+    padding: .4rem .8rem; border-radius: 8px; color: var(--texte-doux); text-decoration: none; font-weight: 500;
+}
+.barre nav a:hover { background: var(--fond); color: var(--texte); }
+.barre nav a.actif { background: var(--primaire-pale); color: var(--primaire); }
+.compte { display: flex; align-items: center; gap: .6rem; }
+.compte .email { color: var(--texte-doux); font-size: .9rem; }
+.compte form { margin: 0; }
+.role {
+    font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+    padding: .15rem .5rem; border-radius: 99px; background: var(--texte); color: #fff;
+}
+.role.user { background: var(--primaire); }
+
+/* ---------- Mise en page ---------- */
+.contenu { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.detail { display: block; color: var(--texte-doux); font-size: .85rem; }
+.muet { color: var(--texte-doux); }
+.vide { color: var(--texte-doux); padding: 2rem; text-align: center; background: var(--surface);
+        border: 1px dashed var(--bordure); border-radius: var(--rayon); }
+.resume { color: var(--texte-doux); margin: 1rem 0; }
+
+/* ---------- Boutons et champs ---------- */
+.bouton {
+    display: inline-block; padding: .55rem 1rem; line-height: 1.35; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--bordure); background: var(--surface); color: var(--texte);
+    font: inherit; font-weight: 600; text-decoration: none; text-align: center;
+}
+.bouton:hover { border-color: var(--texte-doux); }
+.bouton.plein { background: var(--primaire); border-color: var(--primaire); color: #fff; }
+.bouton.plein:hover { background: var(--primaire-fonce); }
+.bouton.discret { background: transparent; }
+.bouton.danger { color: var(--danger); }
+.bouton.petit { padding: .3rem .65rem; font-size: .85rem; }
+.bouton:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--primaire-pale); outline-offset: 1px; }
+
+label { display: flex; flex-direction: column; gap: .3rem; font-size: .85rem; font-weight: 600; color: var(--texte-doux); }
+input, select {
+    font: inherit; color: var(--texte); padding: 0 .65rem; height: 2.5rem; min-width: 0;
+    border: 1px solid var(--bordure); border-radius: 8px; background: var(--surface);
+}
+.pile { display: flex; flex-direction: column; gap: 1rem; }
+
+/* ---------- Alertes ---------- */
+.alerte { padding: .75rem 1rem; border-radius: 8px; margin: 0 0 1rem; font-weight: 500; }
+.alerte.succes { background: var(--succes-pale); color: var(--succes); }
+.alerte.erreur { background: var(--danger-pale); color: var(--danger); }
+
+/* ---------- Connexion et page d'erreur ---------- */
+.page-connexion { display: grid; place-items: center; min-height: 100vh; padding: 1rem; }
+.carte-connexion {
+    width: 100%; max-width: 380px; background: var(--surface); padding: 2rem;
+    border: 1px solid var(--bordure); border-radius: 14px; box-shadow: 0 8px 30px rgba(20, 30, 60, .06);
+}
+.sous-titre { color: var(--texte-doux); margin: .25rem 0 1.5rem; }
+.comptes-demo {
+    display: flex; flex-direction: column; gap: .2rem; margin-top: 1.5rem; padding: .9rem;
+    background: var(--fond); border-radius: 8px; font-size: .85rem;
+}
+.comptes-demo small { color: var(--texte-doux); }
+.code-erreur { font-size: 3rem; font-weight: 800; color: var(--primaire); margin: 0; }
+
+/* ---------- Recherche de vehicules ---------- */
+.filtres {
+    display: flex; flex-wrap: wrap; gap: .75rem; align-items: flex-end;
+    background: var(--surface); padding: 1rem; border: 1px solid var(--bordure); border-radius: var(--rayon);
+}
+.grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 1rem; }
+.vehicule {
+    display: flex; flex-direction: column; gap: .4rem; padding: 1.1rem;
+    background: var(--surface); border: 1px solid var(--bordure); border-radius: var(--rayon);
+}
+.vehicule-entete { display: flex; justify-content: space-between; align-items: start; gap: .5rem; }
+.vehicule .equipements { color: var(--texte-doux); font-size: .85rem; margin: 0; flex: 1; }
+.vehicule .detail { margin: 0; }
+.vehicule-pied { display: flex; justify-content: space-between; align-items: end; margin-top: .6rem; }
+.vehicule-pied form { margin: 0; }
+.prix { font-size: 1.25rem; font-weight: 700; }
+.badge { font-size: .75rem; font-weight: 600; padding: .15rem .55rem; border-radius: 99px;
+         background: var(--primaire-pale); color: var(--primaire); white-space: nowrap; }
+
+/* ---------- Tableaux ---------- */
+.tableau { overflow-x: auto; background: var(--surface); border: 1px solid var(--bordure); border-radius: var(--rayon); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: .7rem .9rem; text-align: left; border-bottom: 1px solid var(--bordure); vertical-align: middle; }
+th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--texte-doux); background: #fafbfc; }
+tr:last-child td { border-bottom: none; }
+td.nombre { font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.actions { white-space: nowrap; }
+td.actions form { display: inline; margin: 0; }
+.pastille { font-size: .78rem; font-weight: 600; padding: .2rem .6rem; border-radius: 99px; white-space: nowrap; }
+.pastille.attente { background: var(--attente-pale); color: var(--attente); }
+.pastille.ok { background: var(--succes-pale); color: var(--succes); }
+.pastille.ko { background: var(--danger-pale); color: var(--danger); }
+.pastille.neutre { background: var(--fond); color: var(--texte-doux); }
+
+.pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1rem; color: var(--texte-doux); }
+.pagination a { font-weight: 600; text-decoration: none; }
+
+/* ---------- Administration ---------- */
+.chiffres { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.chiffre {
+    display: flex; flex-direction: column; padding: 1rem 1.2rem;
+    background: var(--surface); border: 1px solid var(--bordure); border-radius: var(--rayon);
+}
+.chiffre strong { font-size: 1.9rem; line-height: 1.2; }
+.chiffre span { color: var(--texte-doux); font-size: .9rem; }
+.bloc { margin-bottom: 2.5rem; }
+.bloc-entete { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .75rem; margin-bottom: .75rem; }
+.onglets { display: flex; flex-wrap: wrap; gap: .25rem; }
+.onglets a { padding: .3rem .7rem; border-radius: 99px; font-size: .85rem; text-decoration: none; color: var(--texte-doux); }
+.onglets a.actif { background: var(--texte); color: #fff; }
+.formulaire {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 1rem; align-items: end;
+    background: var(--surface); padding: 1.2rem; border: 1px solid var(--bordure); border-radius: var(--rayon);
+}
+
+@media (max-width: 640px) {
+    .barre { padding: .7rem 1rem; gap: .75rem; }
+    .barre nav { order: 3; flex-basis: 100%; }
+    .compte .email { display: none; }
+    .contenu { padding: 1.25rem 1rem 3rem; }
+    .filtres > * { flex: 1 1 140px; }
+}
